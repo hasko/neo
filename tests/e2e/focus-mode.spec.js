@@ -4,8 +4,8 @@ const neo = require('./neo');
 
 const FOCUS = ['View', 'Focus Mode'];
 
-// paragraphs by index: 0-1 scene one, 2 break, 3-4 scene two (the spec's
-// German examples), 5 break, 6 scene three
+// paragraphs by index: 0-1 prose, 2 break, 3-4 the spec's German examples,
+// 5 break, 6 prose
 const CHAPTER = [
   '<p>The door was open. Nobody had come home! Was it the wind?</p>',
   '<p>Second paragraph here. It has two sentences.</p>',
@@ -44,7 +44,6 @@ test.describe('controls', () => {
       { label: '', type: 'separator', accelerator: null },
       { label: 'Sentence', type: 'normal', accelerator: null },
       { label: 'Paragraph', type: 'normal', accelerator: null },
-      { label: 'Scene', type: 'normal', accelerator: null },
       { label: 'Off', type: 'normal', accelerator: null },
     ]);
   });
@@ -56,10 +55,9 @@ test.describe('controls', () => {
     expect(view.submenu.map((i) => i.label)).toContain('Focus Mode');
   });
 
-  test('⌘⇧O cycles off → scene → paragraph → sentence → off, with a toast each time', async () => {
+  test('⌘⇧O cycles off → paragraph → sentence → off, with a toast each time', async () => {
     expect(await state()).toMatchObject({ level: 'off', bodyClass: false });
     const expected = [
-      ['scene', 'Focus: scene'],
       ['paragraph', 'Focus: paragraph'],
       ['sentence', 'Focus: sentence'],
       ['off', 'Focus mode off'],
@@ -79,7 +77,7 @@ test.describe('controls', () => {
 
   test('Help → Shortcuts explains the cycle', async () => {
     await run.page.evaluate(() => showHelp());
-    await expect(run.page.locator('.modal', { hasText: 'NEO Shortcuts' })).toContainText('Focus mode: off → scene → paragraph → sentence → off');
+    await expect(run.page.locator('.modal', { hasText: 'NEO Shortcuts' })).toContainText('Focus mode: off → paragraph → sentence → off');
   });
 });
 
@@ -119,18 +117,6 @@ test.describe('focused range', () => {
     expect(await neo.focusText(run.page)).toBe(await paraText(1));
   });
 
-  test('scene: paragraphs between two breaks', async () => {
-    await neo.clickMenu(run.app, [...FOCUS, 'Scene']);
-    await caretIn(4, 'fehlte');
-    expect(await neo.focusText(run.page)).toBe((await paraText(3)) + (await paraText(4)));
-  });
-
-  test('scene: starts at the chapter when no break comes before', async () => {
-    await neo.clickMenu(run.app, [...FOCUS, 'Scene']);
-    await caretIn(1, 'two');
-    expect(await neo.focusText(run.page)).toBe((await paraText(0)) + (await paraText(1)));
-  });
-
   test('a caret on a *** line highlights nothing, but focus mode stays on', async () => {
     await neo.clickMenu(run.app, [...FOCUS, 'Paragraph']);
     await caretIn(1, 'two');
@@ -158,11 +144,11 @@ test.describe('focused range', () => {
 
   test('drop cap: full ink only while its paragraph is in focus', async () => {
     const hasCap = () => run.page.evaluate(() => document.querySelector('.chapter-body').classList.contains('focus-cap'));
-    await neo.clickMenu(run.app, [...FOCUS, 'Scene']);
-    await caretIn(1, 'two');
+    await neo.clickMenu(run.app, [...FOCUS, 'Paragraph']);
+    await caretIn(0, 'Nobody');
     await neo.focusText(run.page);
     expect(await hasCap()).toBe(true);
-    await caretIn(6, 'scene');
+    await caretIn(1, 'two');
     await neo.focusText(run.page);
     expect(await hasCap()).toBe(false);
   });
@@ -190,6 +176,11 @@ test.describe('persistence and purity', () => {
     expect(await state()).toMatchObject({ level: 'off', bodyClass: false });
   });
 
+  test('a stored level that is no longer offered starts with focus off', async () => {
+    await start({ focus: 'scene' });
+    expect(await state()).toMatchObject({ level: 'off', bodyClass: false });
+  });
+
   test('the level is stored in library.json and restored on restart', async () => {
     await start();
     await neo.clickMenu(run.app, [...FOCUS, 'Paragraph']);
@@ -203,7 +194,7 @@ test.describe('persistence and purity', () => {
 
   test('saved chapter HTML carries no trace of focus mode', async () => {
     await start();
-    await neo.clickMenu(run.app, [...FOCUS, 'Scene']);
+    await neo.clickMenu(run.app, [...FOCUS, 'Paragraph']);
     await caretIn(1, 'sentences.', true);
     await run.page.keyboard.type(' Typed while dimmed.');
     // exactly the seeded chapter plus the typed words: no classes, spans or

@@ -1,11 +1,11 @@
 # focus-mode Specification
 
 ## Purpose
-Keep attention on the words being written: dim the manuscript except the sentence, paragraph or scene holding the caret, as a purely visual layer that never changes the text, saved files or exports.
+Keep attention on the words being written: dim the manuscript except the sentence or paragraph holding the caret, as a purely visual layer that never changes the text, saved files or exports.
 
 ## Requirements
 ### Requirement: Focus levels
-The system SHALL offer a focus mode with the levels sentence, paragraph and scene, and an off state. While focus mode is on, all manuscript prose and chapter headings SHALL be dimmed except the focused range, which SHALL be shown at the normal ink colour.
+The system SHALL offer a focus mode with the levels sentence and paragraph, and an off state. While focus mode is on, all manuscript prose and chapter headings SHALL be dimmed except the focused range, which SHALL be shown at the normal ink colour.
 
 #### Scenario: Sentence focus
 - **WHEN** focus level is sentence and the caret is inside the second sentence of a paragraph
@@ -14,14 +14,6 @@ The system SHALL offer a focus mode with the levels sentence, paragraph and scen
 #### Scenario: Paragraph focus
 - **WHEN** focus level is paragraph and the caret is in a paragraph
 - **THEN** the entire paragraph is shown at full ink and all other paragraphs are dimmed
-
-#### Scenario: Scene focus
-- **WHEN** focus level is scene and the caret is in a paragraph between two `***` scene breaks
-- **THEN** all paragraphs between those scene breaks are shown at full ink and paragraphs beyond them are dimmed
-
-#### Scenario: Scene bounded by chapter
-- **WHEN** focus level is scene and the current chapter has no scene break before the caret
-- **THEN** the focused scene starts at the first paragraph of the chapter and never extends into another chapter
 
 #### Scenario: Focus off
 - **WHEN** focus mode is off
@@ -58,7 +50,7 @@ Sentence boundaries SHALL be determined with locale-aware sentence segmentation 
 - **THEN** the focused sentence is `Heute fehlte einer!`
 
 ### Requirement: Controls
-The system SHALL provide a View → Focus Mode menu with items Cycle, Sentence, Paragraph, Scene and Off. The shortcut CmdOrCtrl+Shift+O (menu item Cycle) SHALL step through the levels in the order off → scene → paragraph → sentence → off. Every change SHALL be confirmed with a short toast naming the new state, and the shortcut SHALL be listed in the Help overview. Because focus mode only changes how the page is displayed, it SHALL live in the View menu and not in Format, which holds commands that change the manuscript.
+The system SHALL provide a View → Focus Mode menu with items Cycle, Sentence, Paragraph and Off. The shortcut CmdOrCtrl+Shift+O (menu item Cycle) SHALL step through the levels in the order off → paragraph → sentence → off. Every change SHALL be confirmed with a short toast naming the new state, and the shortcut SHALL be listed in the Help overview. Because focus mode only changes how the page is displayed, it SHALL live in the View menu and not in Format, which holds commands that change the manuscript.
 
 #### Scenario: Choose a level from the menu
 - **WHEN** the user selects View → Focus Mode → Paragraph
@@ -66,11 +58,11 @@ The system SHALL provide a View → Focus Mode menu with items Cycle, Sentence, 
 
 #### Scenario: Cycle from off
 - **WHEN** focus mode is off and the user presses ⌘⇧O
-- **THEN** scene focus is active and a toast "Focus: scene" appears
+- **THEN** paragraph focus is active and a toast "Focus: paragraph" appears
 
 #### Scenario: Cycle through all levels
-- **WHEN** scene focus is active and the user presses ⌘⇧O three times
-- **THEN** focus goes to paragraph, then sentence, then off
+- **WHEN** paragraph focus is active and the user presses ⌘⇧O twice
+- **THEN** focus goes to sentence, then off
 
 #### Scenario: Cycle continues from a menu choice
 - **WHEN** the user selected View → Focus Mode → Paragraph and then presses ⌘⇧O
@@ -85,6 +77,10 @@ The current focus level SHALL be stored in the library settings and restored on 
 
 #### Scenario: Older library file
 - **WHEN** the library settings contain no focus keys
+- **THEN** focus mode starts off
+
+#### Scenario: Stored level no longer offered
+- **WHEN** the library settings contain a focus level that is not offered, such as the former `scene`
 - **THEN** focus mode starts off
 
 ### Requirement: Manuscript content is never modified
@@ -106,7 +102,7 @@ Focus mode SHALL work in the light and night page modes, keep the drop cap consi
 - **THEN** the focused range uses the night ink colour and the rest is dimmed towards the night paper colour
 
 #### Scenario: Drop cap follows its paragraph
-- **WHEN** scene focus is active and the focused scene includes the chapter's first paragraph
+- **WHEN** paragraph focus is active and the focused paragraph is the chapter's first paragraph
 - **THEN** the drop cap is shown at full ink; otherwise it is dimmed
 
 #### Scenario: With typewriter scrolling
