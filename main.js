@@ -1030,17 +1030,6 @@ function buildMenu() {
           accelerator: 'CmdOrCtrl+Shift+T',
           click: () => sendToWindow({ type: 'typewriter' })
         },
-        {
-          label: 'Focus Mode',
-          submenu: [
-            { label: 'Cycle', accelerator: 'CmdOrCtrl+Shift+O', click: () => sendToWindow({ type: 'focusCycle' }) },
-            { type: 'separator' },
-            { label: 'Sentence', click: () => sendToWindow({ type: 'focus', value: 'sentence' }) },
-            { label: 'Paragraph', click: () => sendToWindow({ type: 'focus', value: 'paragraph' }) },
-            { label: 'Scene', click: () => sendToWindow({ type: 'focus', value: 'scene' }) },
-            { label: 'Off', click: () => sendToWindow({ type: 'focus', value: 'off' }) }
-          ]
-        },
         { type: 'separator' },
         // ticks when the caret sits in a poetry paragraph; ⇧Enter is the
         // editor's own key, so no accelerator here
@@ -1062,6 +1051,17 @@ function buildMenu() {
             const w = BrowserWindow.getFocusedWindow();
             if (w) w.setFullScreen(!w.isFullScreen());
           }
+        },
+        {
+          label: 'Focus Mode',
+          submenu: [
+            { label: 'Cycle', accelerator: 'CmdOrCtrl+Shift+O', click: () => sendToWindow({ type: 'focusCycle' }) },
+            { type: 'separator' },
+            { label: 'Sentence', click: () => sendToWindow({ type: 'focus', value: 'sentence' }) },
+            { label: 'Paragraph', click: () => sendToWindow({ type: 'focus', value: 'paragraph' }) },
+            { label: 'Scene', click: () => sendToWindow({ type: 'focus', value: 'scene' }) },
+            { label: 'Off', click: () => sendToWindow({ type: 'focus', value: 'off' }) }
+          ]
         },
         { type: 'separator' },
         {
