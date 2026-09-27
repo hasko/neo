@@ -10,7 +10,8 @@
     "package": "electron-builder --mac",
     "package:win": "electron-builder --win",
     "package:linux": "electron-builder --linux",
-    "package:all": "electron-builder --mac --win --linux"
+    "package:all": "electron-builder --mac --win --linux",
+    "install:local": "npm install && electron-builder --mac dir --arm64 -c.mac.identity=- -c.mac.notarize=false --publish never && rm -rf /Applications/NEO.app && cp -R dist/mac-arm64/NEO.app /Applications/"
   },
   "build": {
     "appId": "com.hughhowey.neo",
