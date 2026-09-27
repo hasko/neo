@@ -11,6 +11,7 @@
     "package:win": "electron-builder --win",
     "package:linux": "electron-builder --linux",
     "package:all": "electron-builder --mac --win --linux",
+    "test:e2e": "playwright test -c tests/e2e",
     "install:local": "npm install && electron-builder --mac dir --arm64 -c.mac.identity=- -c.mac.notarize=false --publish never && rm -rf /Applications/NEO.app && cp -R dist/mac-arm64/NEO.app /Applications/"
   },
   "build": {
@@ -91,12 +92,15 @@
       "!dist/**",
       "!Backups/**",
       "!*.md",
-      "!.github/**"
+      "!.github/**",
+      "!tests/**",
+      "!openspec/**"
     ]
   },
   "author": "Hugh Howey",
   "license": "MIT",
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "electron": "^43.0.0",
     "electron-builder": "^26.15.3"
   },

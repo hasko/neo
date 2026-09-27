@@ -1,0 +1,210 @@
+// openspec/changes/add-focus-mode
+const { test, expect } = require('@playwright/test');
+const neo = require('./neo');
+
+const FOCUS = ['Format', 'Focus Mode'];
+
+// paragraphs by index: 0-1 scene one, 2 break, 3-4 scene two (the spec's
+// German examples), 5 break, 6 scene three
+const CHAPTER = [
+  '<p>The door was open. Nobody had come home! Was it the wind?</p>',
+  '<p>Second paragraph here. It has two sentences.</p>',
+  '<p class="scene-break">***</p>',
+  '<p>„Wir müssen reden“, sagte sie. Dann ging sie.</p>',
+  '<p>Heute fehlte einer! Das war noch nie passiert.</p>',
+  '<p class="scene-break">***</p>',
+  '<p>Third scene.</p>',
+].join('');
+
+let seed, run;
+async function start(library = {}) {
+  seed = neo.seedLibrary({ chapterHtml: CHAPTER, library });
+  run = await neo.launch(seed);
+}
+test.afterEach(async () => { await neo.close(run); run = null; });
+
+const state = () => run.page.evaluate(() => ({
+  level: focusLevel,
+  bodyClass: document.body.classList.contains('focus-mode'),
+  toast: document.querySelector('#hint').textContent,
+}));
+const paraText = (i) => run.page.evaluate((i) => document.querySelectorAll('.chapter-body > p')[i].textContent, i);
+async function caretIn(i, needle, after = false) {
+  const off = await neo.offsetOf(run.page, i, needle);
+  await neo.setCaret(run.page, i, off + (after ? needle.length : 1));
+}
+
+test.describe('controls', () => {
+  test.beforeEach(() => start());
+
+  test('Format → Focus Mode has Cycle on ⌘⇧O and one item per level', async () => {
+    const menu = await neo.menuItem(run.app, FOCUS);
+    expect(menu.submenu).toEqual([
+      { label: 'Cycle', type: 'normal', accelerator: 'CmdOrCtrl+Shift+O' },
+      { label: '', type: 'separator', accelerator: null },
+      { label: 'Sentence', type: 'normal', accelerator: null },
+      { label: 'Paragraph', type: 'normal', accelerator: null },
+      { label: 'Scene', type: 'normal', accelerator: null },
+      { label: 'Off', type: 'normal', accelerator: null },
+    ]);
+  });
+
+  test('⌘⇧O cycles off → scene → paragraph → sentence → off, with a toast each time', async () => {
+    expect(await state()).toMatchObject({ level: 'off', bodyClass: false });
+    const expected = [
+      ['scene', 'Focus: scene'],
+      ['paragraph', 'Focus: paragraph'],
+      ['sentence', 'Focus: sentence'],
+      ['off', 'Focus mode off'],
+    ];
+    for (const [level, toast] of expected) {
+      await neo.clickMenu(run.app, [...FOCUS, 'Cycle']);
+      await expect.poll(state).toEqual({ level, bodyClass: level !== 'off', toast });
+    }
+  });
+
+  test('the cycle continues from a level picked in the menu', async () => {
+    await neo.clickMenu(run.app, [...FOCUS, 'Paragraph']);
+    await expect.poll(state).toMatchObject({ level: 'paragraph', toast: 'Focus: paragraph' });
+    await neo.clickMenu(run.app, [...FOCUS, 'Cycle']);
+    await expect.poll(state).toMatchObject({ level: 'sentence' });
+  });
+
+  test('Help → Shortcuts explains the cycle', async () => {
+    await run.page.evaluate(() => showHelp());
+    await expect(run.page.locator('.modal', { hasText: 'NEO Shortcuts' })).toContainText('Focus mode: off → scene → paragraph → sentence → off');
+  });
+});
+
+test.describe('focused range', () => {
+  test.beforeEach(() => start());
+
+  test('sentence: only the sentence holding the caret', async () => {
+    await neo.clickMenu(run.app, [...FOCUS, 'Sentence']);
+    await caretIn(0, 'Nobody');
+    expect(await neo.focusText(run.page)).toBe('Nobody had come home!');
+  });
+
+  test('sentence: a caret right after the full stop keeps that sentence', async () => {
+    await neo.clickMenu(run.app, [...FOCUS, 'Sentence']);
+    await caretIn(0, 'open.', true);
+    expect(await neo.focusText(run.page)).toBe('The door was open.');
+  });
+
+  test('sentence: focus follows the caret', async () => {
+    await neo.clickMenu(run.app, [...FOCUS, 'Sentence']);
+    await caretIn(0, 'door');
+    expect(await neo.focusText(run.page)).toBe('The door was open.');
+    await caretIn(0, 'wind');
+    expect(await neo.focusText(run.page)).toBe('Was it the wind?');
+  });
+
+  test('sentence: typing past ". " moves focus to the new sentence', async () => {
+    await neo.clickMenu(run.app, [...FOCUS, 'Sentence']);
+    await caretIn(1, 'sentences.', true);
+    await run.page.keyboard.type(' And');
+    expect(await neo.focusText(run.page)).toBe('And');
+  });
+
+  test('paragraph: the whole paragraph', async () => {
+    await neo.clickMenu(run.app, [...FOCUS, 'Paragraph']);
+    await caretIn(1, 'two');
+    expect(await neo.focusText(run.page)).toBe(await paraText(1));
+  });
+
+  test('scene: paragraphs between two breaks', async () => {
+    await neo.clickMenu(run.app, [...FOCUS, 'Scene']);
+    await caretIn(4, 'fehlte');
+    expect(await neo.focusText(run.page)).toBe((await paraText(3)) + (await paraText(4)));
+  });
+
+  test('scene: starts at the chapter when no break comes before', async () => {
+    await neo.clickMenu(run.app, [...FOCUS, 'Scene']);
+    await caretIn(1, 'two');
+    expect(await neo.focusText(run.page)).toBe((await paraText(0)) + (await paraText(1)));
+  });
+
+  test('a caret on a *** line highlights nothing, but focus mode stays on', async () => {
+    await neo.clickMenu(run.app, [...FOCUS, 'Paragraph']);
+    await caretIn(1, 'two');
+    expect(await neo.focusText(run.page)).not.toBe('');
+    await neo.setCaret(run.page, 2, 1);
+    expect(await neo.focusText(run.page)).toBe('');
+    expect((await state()).bodyClass).toBe(true);
+  });
+
+  test('off: no highlight and no dimming', async () => {
+    await neo.clickMenu(run.app, [...FOCUS, 'Sentence']);
+    await caretIn(0, 'Nobody');
+    await neo.clickMenu(run.app, [...FOCUS, 'Off']);
+    await expect.poll(state).toMatchObject({ level: 'off', bodyClass: false });
+    expect(await neo.focusText(run.page)).toBe('');
+  });
+
+  test('focus mode dims the manuscript colour', async () => {
+    const ink = () => run.page.evaluate(() => getComputedStyle(document.querySelector('.chapter-body')).color);
+    const normal = await ink();
+    await neo.clickMenu(run.app, [...FOCUS, 'Sentence']);
+    // the colour has a 0.25s transition
+    await expect.poll(ink).not.toBe(normal);
+  });
+
+  test('drop cap: full ink only while its paragraph is in focus', async () => {
+    const hasCap = () => run.page.evaluate(() => document.querySelector('.chapter-body').classList.contains('focus-cap'));
+    await neo.clickMenu(run.app, [...FOCUS, 'Scene']);
+    await caretIn(1, 'two');
+    await neo.focusText(run.page);
+    expect(await hasCap()).toBe(true);
+    await caretIn(6, 'scene');
+    await neo.focusText(run.page);
+    expect(await hasCap()).toBe(false);
+  });
+});
+
+test.describe('German sentences (spellcheck language de)', () => {
+  test.beforeEach(() => start({ spellLanguage: 'de-DE' }));
+
+  test('a quotation followed by ", sagte sie." is one sentence', async () => {
+    await neo.clickMenu(run.app, [...FOCUS, 'Sentence']);
+    await caretIn(3, 'sagte');
+    expect(await neo.focusText(run.page)).toBe('„Wir müssen reden“, sagte sie.');
+  });
+
+  test('an exclamation mark ends the sentence', async () => {
+    await neo.clickMenu(run.app, [...FOCUS, 'Sentence']);
+    await caretIn(4, 'fehlte');
+    expect(await neo.focusText(run.page)).toBe('Heute fehlte einer!');
+  });
+});
+
+test.describe('persistence and purity', () => {
+  test('an older library without focus keys starts with focus off', async () => {
+    await start();
+    expect(await state()).toMatchObject({ level: 'off', bodyClass: false });
+  });
+
+  test('the level is stored in library.json and restored on restart', async () => {
+    await start();
+    await neo.clickMenu(run.app, [...FOCUS, 'Paragraph']);
+    await expect.poll(() => neo.readJSON(seed.libraryFile).focus).toBe('paragraph');
+    expect(neo.readJSON(seed.libraryFile)).not.toHaveProperty('focusLastOn');
+
+    await neo.close(run);
+    run = await neo.launch(seed);
+    expect(await state()).toMatchObject({ level: 'paragraph', bodyClass: true });
+  });
+
+  test('saved chapter HTML carries no trace of focus mode', async () => {
+    await start();
+    await neo.clickMenu(run.app, [...FOCUS, 'Scene']);
+    await caretIn(1, 'sentences.', true);
+    await run.page.keyboard.type(' Typed while dimmed.');
+    // exactly the seeded chapter plus the typed words: no classes, spans or
+    // attributes from the highlight, the dimming or the drop-cap class
+    const expected = CHAPTER.replace('two sentences.', 'two sentences. Typed while dimmed.');
+    const html = await neo.waitForChapterFile(seed, (h) => h.includes('Typed while dimmed.'));
+    expect(html).toBe(expected);
+    // …and the in-memory copy the exporters read is the same
+    expect(await run.page.evaluate(() => chapterHTML['ch-1'])).toBe(expected);
+  });
+});
