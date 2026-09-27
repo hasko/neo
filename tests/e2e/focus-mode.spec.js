@@ -2,7 +2,7 @@
 const { test, expect } = require('@playwright/test');
 const neo = require('./neo');
 
-const FOCUS = ['Format', 'Focus Mode'];
+const FOCUS = ['View', 'Focus Mode'];
 
 // paragraphs by index: 0-1 scene one, 2 break, 3-4 scene two (the spec's
 // German examples), 5 break, 6 scene three
@@ -37,7 +37,7 @@ async function caretIn(i, needle, after = false) {
 test.describe('controls', () => {
   test.beforeEach(() => start());
 
-  test('Format → Focus Mode has Cycle on ⌘⇧O and one item per level', async () => {
+  test('View → Focus Mode has Cycle on ⌘⇧O and one item per level', async () => {
     const menu = await neo.menuItem(run.app, FOCUS);
     expect(menu.submenu).toEqual([
       { label: 'Cycle', type: 'normal', accelerator: 'CmdOrCtrl+Shift+O' },
@@ -47,6 +47,13 @@ test.describe('controls', () => {
       { label: 'Scene', type: 'normal', accelerator: null },
       { label: 'Off', type: 'normal', accelerator: null },
     ]);
+  });
+
+  test('focus mode is a View setting, not a Format command', async () => {
+    // Format changes the manuscript; focus mode only changes how it looks
+    expect(await neo.menuItem(run.app, ['Format', 'Focus Mode'])).toBeNull();
+    const view = await neo.menuItem(run.app, ['View']);
+    expect(view.submenu.map((i) => i.label)).toContain('Focus Mode');
   });
 
   test('⌘⇧O cycles off → scene → paragraph → sentence → off, with a toast each time', async () => {

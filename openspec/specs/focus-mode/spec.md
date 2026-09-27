@@ -58,10 +58,10 @@ Sentence boundaries SHALL be determined with locale-aware sentence segmentation 
 - **THEN** the focused sentence is `Heute fehlte einer!`
 
 ### Requirement: Controls
-The system SHALL provide a Format → Focus Mode menu with items Cycle, Sentence, Paragraph, Scene and Off. The shortcut CmdOrCtrl+Shift+O (menu item Cycle) SHALL step through the levels in the order off → scene → paragraph → sentence → off. Every change SHALL be confirmed with a short toast naming the new state, and the shortcut SHALL be listed in the Help overview.
+The system SHALL provide a View → Focus Mode menu with items Cycle, Sentence, Paragraph, Scene and Off. The shortcut CmdOrCtrl+Shift+O (menu item Cycle) SHALL step through the levels in the order off → scene → paragraph → sentence → off. Every change SHALL be confirmed with a short toast naming the new state, and the shortcut SHALL be listed in the Help overview. Because focus mode only changes how the page is displayed, it SHALL live in the View menu and not in Format, which holds commands that change the manuscript.
 
 #### Scenario: Choose a level from the menu
-- **WHEN** the user selects Format → Focus Mode → Paragraph
+- **WHEN** the user selects View → Focus Mode → Paragraph
 - **THEN** paragraph focus is active and a toast "Focus: paragraph" appears
 
 #### Scenario: Cycle from off
@@ -73,7 +73,7 @@ The system SHALL provide a Format → Focus Mode menu with items Cycle, Sentence
 - **THEN** focus goes to paragraph, then sentence, then off
 
 #### Scenario: Cycle continues from a menu choice
-- **WHEN** the user selected Format → Focus Mode → Paragraph and then presses ⌘⇧O
+- **WHEN** the user selected View → Focus Mode → Paragraph and then presses ⌘⇧O
 - **THEN** sentence focus is active
 
 ### Requirement: Persistence
