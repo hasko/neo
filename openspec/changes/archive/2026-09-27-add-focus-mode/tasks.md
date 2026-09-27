@@ -30,7 +30,7 @@
 ## 5. Verification
 
 - [x] 5.1 `node --check app.js main.js`
-- [ ] 5.2 Manual test of all spec scenarios in light and night mode, including German sentences with „…“ and `!`
-- [ ] 5.3 Confirm saved chapter HTML contains no focus artefacts (diff a chapter file written with focus on vs. off)
-- [ ] 5.4 Confirm exports (DOCX, EPUB, PDF) are unaffected
-- [ ] 5.5 Check combination with typewriter scrolling, search and spellcheck
+- [x] 5.2 Manual test of all spec scenarios in light and night mode, including German sentences with „…“ and `!` — e2e `tests/e2e/focus-mode.spec.js` (all scenarios, German examples, night page); light page confirmed manually 2026-09-27
+- [x] 5.3 Confirm saved chapter HTML contains no focus artefacts (diff a chapter file written with focus on vs. off) — e2e: saved chapter file equals seed + typed text byte for byte
+- [x] 5.4 Confirm exports (DOCX, EPUB, PDF) are unaffected — DOCX, EPUB and PDF confirmed manually 2026-09-27
+- [x] 5.5 Check combination with typewriter scrolling, search and spellcheck — typewriter scrolling, search and spellcheck squiggles (sentence focus) confirmed manually 2026-09-27
