@@ -1,7 +1,7 @@
 ## 1. State and persistence
 
-- [x] 1.1 Add focus state (`focusLevel`, `focusLastOn`, `FOCUS_LEVELS`) and `setFocus` / `toggleFocus` / `applyFocus` to `app.js`, writing `library.focus` and `library.focusLastOn`
-- [x] 1.2 Restore focus state on startup next to the typewriter restore in the `loadLibrary().then(...)` block, defaulting to off / sentence
+- [x] 1.1 Add focus state (`focusLevel`, `FOCUS_LEVELS` in cycle order) and `setFocus` / `cycleFocus` / `applyFocus` to `app.js`, writing `library.focus`
+- [x] 1.2 Restore focus state on startup next to the typewriter restore in the `loadLibrary().then(...)` block, defaulting to off
 - [x] 1.3 Show a toast on every focus change
 
 ## 2. Focus range computation
@@ -23,8 +23,8 @@
 
 ## 4. Menu and help
 
-- [x] 4.1 Add Format → Focus Mode submenu in `main.js` (On / Off with `CmdOrCtrl+Shift+O`, Sentence, Paragraph, Scene, Off)
-- [x] 4.2 Handle `focus` and `focusToggle` menu messages in `app.js`
+- [x] 4.1 Add Format → Focus Mode submenu in `main.js` (Cycle with `CmdOrCtrl+Shift+O`, Sentence, Paragraph, Scene, Off)
+- [x] 4.2 Handle `focus` and `focusCycle` menu messages in `app.js`
 - [x] 4.3 Add ⌘⇧O to the "Modes" section of `showHelp()`
 
 ## 5. Verification

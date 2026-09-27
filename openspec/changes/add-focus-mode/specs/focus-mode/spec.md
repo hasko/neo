@@ -54,22 +54,26 @@ Sentence boundaries SHALL be determined with locale-aware sentence segmentation 
 - **THEN** the focused sentence is `Heute fehlte einer!`
 
 ### Requirement: Controls
-The system SHALL provide a Format → Focus Mode menu with items On / Off, Sentence, Paragraph, Scene and Off. The shortcut CmdOrCtrl+Shift+O SHALL toggle focus mode between off and the most recently used level (sentence if none was used). Every change SHALL be confirmed with a short toast naming the new state, and the shortcut SHALL be listed in the Help overview.
+The system SHALL provide a Format → Focus Mode menu with items Cycle, Sentence, Paragraph, Scene and Off. The shortcut CmdOrCtrl+Shift+O (menu item Cycle) SHALL step through the levels in the order off → scene → paragraph → sentence → off. Every change SHALL be confirmed with a short toast naming the new state, and the shortcut SHALL be listed in the Help overview.
 
 #### Scenario: Choose a level from the menu
 - **WHEN** the user selects Format → Focus Mode → Paragraph
 - **THEN** paragraph focus is active and a toast "Focus: paragraph" appears
 
-#### Scenario: Toggle restores last level
-- **WHEN** the user had scene focus active, pressed ⌘⇧O to turn it off, and presses ⌘⇧O again
-- **THEN** scene focus is active again
+#### Scenario: Cycle from off
+- **WHEN** focus mode is off and the user presses ⌘⇧O
+- **THEN** scene focus is active and a toast "Focus: scene" appears
 
-#### Scenario: First toggle
-- **WHEN** focus mode has never been used and the user presses ⌘⇧O
-- **THEN** sentence focus is activated
+#### Scenario: Cycle through all levels
+- **WHEN** scene focus is active and the user presses ⌘⇧O three times
+- **THEN** focus goes to paragraph, then sentence, then off
+
+#### Scenario: Cycle continues from a menu choice
+- **WHEN** the user selected Format → Focus Mode → Paragraph and then presses ⌘⇧O
+- **THEN** sentence focus is active
 
 ### Requirement: Persistence
-The current focus level and the last used level SHALL be stored in the library settings and restored on the next start.
+The current focus level SHALL be stored in the library settings and restored on the next start.
 
 #### Scenario: Restart
 - **WHEN** the user quits NEO with paragraph focus active and starts it again
@@ -77,7 +81,7 @@ The current focus level and the last used level SHALL be stored in the library s
 
 #### Scenario: Older library file
 - **WHEN** the library settings contain no focus keys
-- **THEN** focus mode starts off and the toggle level defaults to sentence
+- **THEN** focus mode starts off
 
 ### Requirement: Manuscript content is never modified
 Focus mode SHALL be purely visual. It MUST NOT insert, remove or alter elements, attributes or text inside chapter bodies, and MUST NOT affect saved chapter files, undo history or exports.

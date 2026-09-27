@@ -23,8 +23,8 @@ The manuscript is a set of `contentEditable` `.chapter-body` elements containing
 - **Explicit highlight colours for light and night** (`#1c1c1c` / `#d6d2c6`) because custom properties inside `::highlight()` are not reliably resolved from the originating element.
 - **Drop cap handled by a class on `.chapter-body`** (`focus-cap`). Highlights do not paint `::first-letter`. The class lives on the chapter body element itself, which `captureBody` does not serialise. The CSS selector mirrors the existing drop-cap selector exactly, because a broader `::first-letter` rule would make Chromium split text nodes and corrupt deletes (see existing comment in styles.css).
 - **Update triggers:** `selectionchange` and `input`, each deferred to `requestAnimationFrame`, wrapped in try/catch like the typewriter handler. When the caret leaves the manuscript (title page, panels) the last highlight stays, so the page does not flash.
-- **Persistence** mirrors typewriter: `library.focus` (current level) and `library.focusLastOn` (level restored by ⌘⇧O), written via `window.neo.writeLibrary`.
-- **Shortcut ⌘⇧O** ("fOcus"): free in the current accelerator set; iA Writer's ⌘D is taken by Darlings (⌘⇧D) conventions and would be confusing.
+- **Persistence** mirrors typewriter: `library.focus` (current level), written via `window.neo.writeLibrary`.
+- **Shortcut ⌘⇧O** ("fOcus") cycles off → scene → paragraph → sentence → off, widest to narrowest, so one key reaches every level without the menu. `FOCUS_LEVELS` is kept in that order and doubles as the cycle. The key is free in the current accelerator set; iA Writer's ⌘D is taken by Darlings (⌘⇧D) conventions and would be confusing.
 
 ## Risks / Trade-offs
 

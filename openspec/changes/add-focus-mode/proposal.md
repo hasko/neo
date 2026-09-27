@@ -9,8 +9,8 @@ Writers coming from iA Writer rely on its Focus Mode: everything except the sent
   - **Paragraph**: only the current paragraph
   - **Scene**: all paragraphs between the surrounding `***` scene breaks (or chapter boundaries)
 - Everything else in the manuscript (prose and chapter headings) is dimmed.
-- New menu **Format → Focus Mode** with *On / Off* (⌘⇧O / Ctrl+Shift+O), *Sentence*, *Paragraph*, *Scene*, *Off*.
-- ⌘⇧O toggles focus off and back on to the last used level.
+- New menu **Format → Focus Mode** with *Cycle* (⌘⇧O / Ctrl+Shift+O), *Sentence*, *Paragraph*, *Scene*, *Off*.
+- ⌘⇧O cycles off → scene → paragraph → sentence → off.
 - The chosen level is remembered across restarts (like Typewriter Scrolling).
 - Works in light and night page modes and combines with Typewriter Scrolling.
 - Purely visual: the manuscript text and saved HTML are never modified.
@@ -28,5 +28,5 @@ Writers coming from iA Writer rely on its Focus Mode: everything except the sent
 - `app.js`: new focus-mode module (state, selection tracking, highlight computation), menu message handling, startup restore, Help entry.
 - `main.js`: new Format → Focus Mode submenu.
 - `styles.css`: dimmed manuscript colour, `::highlight(neo-focus)` colours for light and night, drop-cap rule.
-- `library.json`: two new optional keys `focus` and `focusLastOn`; absent keys mean off. No migration needed.
+- `library.json`: one new optional key `focus`; absent means off. No migration needed.
 - No new dependencies. Relies on the CSS Custom Highlight API and `Intl.Segmenter`, both available in NEO's Electron/Chromium.
