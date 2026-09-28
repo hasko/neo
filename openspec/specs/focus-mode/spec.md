@@ -34,6 +34,10 @@ The focused range SHALL be recomputed whenever the caret moves or the text chang
 - **WHEN** the user clicks into the title page or a side panel
 - **THEN** the last focused range stays highlighted
 
+#### Scenario: Selecting across paragraphs
+- **WHEN** the user drags a selection from the focused paragraph into another one, so the focus moves with the drag
+- **THEN** all selected text is shown at the normal ink colour, including the part in the paragraph that is now dimmed
+
 #### Scenario: Caret on a scene break
 - **WHEN** the caret is on a `***` scene break line
 - **THEN** no prose is highlighted and the whole manuscript is dimmed

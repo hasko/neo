@@ -134,6 +134,24 @@ test.describe('focused range', () => {
     expect(await neo.focusText(run.page)).toBe('');
   });
 
+  test('selected text stays at full ink after dragging the focus into the next paragraph', async () => {
+    await neo.clickMenu(run.app, [...FOCUS, 'Paragraph']);
+    // what a drag leaves behind: anchor in paragraph 1, focus moved up into 0
+    await run.page.evaluate(() => {
+      const ps = document.querySelectorAll('.chapter-body > p');
+      ps[1].closest('.chapter-body').focus();
+      getSelection().collapse(ps[1].firstChild, 10);
+      getSelection().extend(ps[0].firstChild, 5);
+    });
+    expect(await neo.focusText(run.page)).toBe(await paraText(0));
+    // paragraph 1 is dimmed now, but its selected part is painted at full ink
+    const selColor = () => run.page.evaluate(() =>
+      getComputedStyle(document.querySelectorAll('.chapter-body > p')[1], '::selection').color);
+    expect(await selColor()).toBe('rgb(214, 210, 198)');   // night ink
+    await run.page.evaluate(() => document.body.classList.remove('night'));
+    expect(await selColor()).toBe('rgb(28, 28, 28)');      // day ink
+  });
+
   test('focus mode dims the manuscript colour', async () => {
     const ink = () => run.page.evaluate(() => getComputedStyle(document.querySelector('.chapter-body')).color);
     const normal = await ink();
