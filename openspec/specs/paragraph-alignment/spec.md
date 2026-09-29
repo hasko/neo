@@ -36,7 +36,7 @@ The alignment shortcuts SHALL be displayed next to their items in the Format →
 
 #### Scenario: Help lists shortcuts
 - **WHEN** the user opens the shortcuts overview (⌘/)
-- **THEN** the alignment shortcuts are listed in one row: the platform-appropriate modifier (⌘⇧ on macOS, Ctrl+Shift elsewhere) in the key column, and the letters L, C, R, J with their alignments in the description, so the key fits the overview's fixed-width key column
+- **THEN** each alignment is listed in its own row under Formatting, with its platform-appropriate shortcut (⌘⇧L/C/R/J on macOS, Ctrl+Shift+L/C/R/J elsewhere), and every key fits its row
 
 ### Requirement: Shortcuts do not collide with existing shortcuts
 The alignment shortcuts SHALL NOT replace or shadow any existing NEO shortcut.

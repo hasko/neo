@@ -3,6 +3,7 @@
 // Isolation: --user-data-dir points Electron's userData at a temp folder whose
 // settings.json names a temp library (File → Library Folder… stores the same
 // key), so the writer's real ~/Documents/NEO Library is never read or written.
+// uiLanguage is pinned to English so menu labels don't follow the system locale.
 const { _electron: electron, expect } = require('@playwright/test');
 const fs = require('node:fs');
 const os = require('node:os');
@@ -29,7 +30,7 @@ function seedLibrary({ chapterHtml = CHAPTER_HTML, library: libraryExtras = {} }
   fs.mkdirSync(userData, { recursive: true });
   fs.mkdirSync(path.join(bookDir, 'chapters'), { recursive: true });
 
-  fs.writeFileSync(path.join(userData, 'settings.json'), JSON.stringify({ libraryDir: lib }));
+  fs.writeFileSync(path.join(userData, 'settings.json'), JSON.stringify({ libraryDir: lib, uiLanguage: 'en' }));
   fs.writeFileSync(path.join(lib, 'library.json'), JSON.stringify({
     authorName: 'Test Author',
     penNames: [],

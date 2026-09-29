@@ -74,12 +74,19 @@ test('alignment is saved to the chapter file and survives a restart', async () =
   expect(await neo.paragraphAligns(run.page)).toEqual(['right', '', '', '', '']);
 });
 
-test('Help → Shortcuts lists the alignment keys, and every key fits its column', async () => {
+test('Help → Shortcuts lists the alignment keys, and every key fits its row', async () => {
   await run.page.evaluate(() => showHelp());
-  const grid = run.page.locator('.help-grid').first();
-  await expect(grid).toContainText('Align paragraph: L left · C center · R right · J justify');
+  const rows = await run.page.evaluate(() =>
+    Object.fromEntries([...document.querySelectorAll('#keyboard-shortcuts .shortcut-row')]
+      .map((r) => [r.querySelector('dt').textContent, r.querySelector('dd').textContent])));
+  expect(rows).toMatchObject({
+    'Align paragraph left': '⌘⇧L',
+    'Center paragraph': '⌘⇧C',
+    'Align paragraph right': '⌘⇧R',
+    'Justify paragraph': '⌘⇧J',
+  });
   const overflowing = await run.page.evaluate(() =>
-    [...document.querySelectorAll('.help-grid .hk')]
+    [...document.querySelectorAll('#keyboard-shortcuts kbd')]
       .filter((k) => k.scrollWidth > k.clientWidth + 1)
       .map((k) => k.textContent));
   expect(overflowing).toEqual([]);

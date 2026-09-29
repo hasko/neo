@@ -42,9 +42,9 @@ test.describe('controls', () => {
     expect(menu.submenu).toEqual([
       { label: 'Cycle', type: 'normal', accelerator: 'CmdOrCtrl+Shift+O' },
       { label: '', type: 'separator', accelerator: null },
-      { label: 'Sentence', type: 'normal', accelerator: null },
-      { label: 'Paragraph', type: 'normal', accelerator: null },
-      { label: 'Off', type: 'normal', accelerator: null },
+      { label: 'Sentence', type: 'radio', accelerator: null },
+      { label: 'Paragraph', type: 'radio', accelerator: null },
+      { label: 'Off', type: 'radio', accelerator: null },
     ]);
   });
 
@@ -77,7 +77,9 @@ test.describe('controls', () => {
 
   test('Help → Shortcuts explains the cycle', async () => {
     await run.page.evaluate(() => showHelp());
-    await expect(run.page.locator('.modal', { hasText: 'NEO Shortcuts' })).toContainText('Focus mode: off → paragraph → sentence → off');
+    const row = run.page.locator('#keyboard-shortcuts .shortcut-row', { hasText: 'Cycle focus mode' });
+    await expect(row).toContainText('Off → paragraph → sentence → off.');
+    await expect(row.locator('kbd')).toHaveText('⌘⇧O');
   });
 });
 
