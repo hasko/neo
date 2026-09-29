@@ -22,7 +22,10 @@ const K = (mac, pc) => (IS_MAC ? mac : pc);
 const KZ = K('⌘Z', 'Ctrl+Z');
 const KPH = K('⌘⇧X', 'Ctrl+Shift+X');
 const KDA = K('⌘⇧D', 'Ctrl+Shift+D');
-const KHELP = K('⌘/', 'Ctrl+/');
+// macOS moves punctuation shortcuts on many non-US keyboards (⌘; is ⌘Ü on
+// German, ⌘Ł on Polish) and shows the moved key only in the menu bar
+const KHELP = K('⌘/ (or Help → NEO Shortcuts)', 'Ctrl+/');
+const KMOVED = K(' — not on a US keyboard? The Edit menu shows your key', '');
 
 // Scrollbars stay invisible until you scroll, then fade away again —
 // chrome only when needed.
@@ -4578,7 +4581,7 @@ function showHelp() {
         ${row(K('⌘⇧F', 'Ctrl+Shift+F'), 'Full screen (Esc leaves)')}
         ${row(K('⌘⇧T', 'Ctrl+Shift+T'), 'Typewriter scrolling')}
         ${row(K('⌘⇧O', 'Ctrl+Shift+O'), 'Focus mode: off → paragraph → sentence → off (View → Focus Mode picks one directly)')}
-        ${row(K('⌘;', 'Ctrl+;'), 'Spellcheck pass (right-click squiggles for fixes)')}
+        ${row(K('⌘;', 'Ctrl+;'), 'Spellcheck pass (right-click squiggles for fixes)' + KMOVED)}
       </div>
 
       <div class="help-sec">Files</div>
